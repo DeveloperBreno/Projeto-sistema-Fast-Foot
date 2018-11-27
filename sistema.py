@@ -168,9 +168,10 @@ def novopedido(nome,cpflimpo):
         #escrever("SABORES:  \n  [1] CHOCOLATE \n  [2] MISTO \n  [3] CREME\n  [4] triplo chocolate Kopenhagen\n  [5] Kit Kat")
 
         # quantidade de sorvetes reverente ao sabor
-        #escrever("QUANTOS DE " + sabordesc)
-        #QTDO = (int(input("")))
         QTDO = 1
+        escrever("QUANTIDADE: ")
+        QTDO = (int(input("")))
+        
 
 
 
@@ -209,6 +210,7 @@ def novopedido(nome,cpflimpo):
         linhadoproduto = str(SABOR)
         valorli = linhadoproduto.split('|')
         valorreal = float(valorli[1])
+        valorreal = QTDO * valorreal
         total = total + valorreal
 
 
