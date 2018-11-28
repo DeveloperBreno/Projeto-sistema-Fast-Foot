@@ -64,6 +64,31 @@ def ganhardesconto(d):
         limpar()
         return novopedido(1)
 
+
+
+
+def desconto_para_clientes_cadastrados(cpflimpo, total):
+    if len(cpflimpo) >= 10:
+        descontototal = total / 20# cinco % de desconto
+        return descontototal
+    else:
+        return 0
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 #pedido na tela
 def chamarpedido(d):
     limpar()
@@ -221,8 +246,9 @@ def novopedido(nome,cpflimpo):
 
 
 
+
         # lista de sabor e quantidade
-        um = '1'
+        um = str(QTDO)
         lista.append("|| {} | {} | {} ||".format(str(um), str(SABOR), str(extra)))
 
 
@@ -235,8 +261,9 @@ def novopedido(nome,cpflimpo):
 
         # mostrar na tela os ja add
         if len(str(lista)) > 2:
-            print('~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~')
+            print('~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~')
             print('JÁ ADICIONADO ')
+
 
 
             for add in lista:
@@ -252,10 +279,13 @@ def novopedido(nome,cpflimpo):
                 minhalinha = minhalinha.replace('|||', '')
                 minhalinha = minhalinha.replace('||', '')
                 minhalinha = minhalinha.replace('|', ' | ')
+                minhalinha = minhalinha.replace(' | ', '?')
+                minhalinha = minhalinha.replace('|', '')
+                minhalinha = minhalinha.replace('?', ' | ')
                 print(minhalinha)
             #print('\n')
             #print('TOTAL: '+str(total))
-            print('~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~')
+            print('~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~')
 
 
 
@@ -273,6 +303,12 @@ def novopedido(nome,cpflimpo):
 
 
 
+
+
+
+
+
+
     # importar data
     from datetime import datetime
 
@@ -280,7 +316,16 @@ def novopedido(nome,cpflimpo):
     now = datetime.now()
 
     # conctenar minutus horas dia mes ano
-    data = (str(now.minute) + ":" + str(now.hour) + ";" + str(now.day) + "/" + str(now.month) + "/" + str(now.year))
+    horahora = str(now.hour)
+    if len(horahora)<2:
+        horahora ='0'+str(now.hour)
+
+    minutominuto=str(now.minute)
+    if len(minutominuto)<2:
+        minutominuto ='0'+str(now.minute)
+
+
+    data = (horahora + ":" + minutominuto + ";" + str(now.day) + "/" + str(now.month) + "/" + str(now.year))
 
 
     # mostrar o pedido completo para o usuario para confirmar pedido/venda
@@ -292,8 +337,45 @@ def novopedido(nome,cpflimpo):
     an = int(now.year)
     numeropedidovariavel = str(numeropedido(m, h, d, me, an))
     escrever('NOME: ' + nome)
-    escrever('PEDIDO: ' + str(lista))
-    escrever('TOTAL: R$ ' + str(total))
+    listalinha = str(lista)
+    listalinha=listalinha.replace(' ','')
+    listalinha=listalinha.replace(']','')
+    listalinha=listalinha.replace('[','')
+    listalinha=listalinha.replace('\"','')
+    listalinha=listalinha.replace('||','')
+    listalinha=listalinha.replace('|','?')
+    listalinha=listalinha.replace(',','')
+
+    listalinha=listalinha.replace('(','')
+    listalinha=listalinha.replace('\'','')
+    listalinha = listalinha.replace(')', '\n')
+    listalinha = listalinha.replace(' | ', '?')
+    listalinha = listalinha.replace('|', '')
+    listalinha = listalinha.replace('?', ' | ')
+    
+
+
+
+
+    subtotal = total
+    descontodefcpf = desconto_para_clientes_cadastrados(cpflimpo, total)
+    total = total-descontodefcpf
+
+
+
+
+
+    print('PEDIDO')
+    escrever(str(listalinha))
+    escrever('SUBTOTAL:  R$ ' + str("%.2f" % subtotal))
+    escrever('DESCONTO:  R$ ' + str("%.2f" % descontodefcpf))
+    escrever('TOTAL:     R$ ' + str("%.2f" % total))
+
+
+
+    escrever(str())
+
+
 
     # conferir se esta correto
     opfinal = '1'
@@ -328,8 +410,18 @@ def novopedido(nome,cpflimpo):
     for item in lista:
         pedidoitem = pedidoitem + str(item)
 
+
+
+    tsub=str(subtotal)
+    tdesc=str(descontodefcpf)
+    ttotal=str(total)
+
+
+
+
+
     # linha para salvar em arquivo
-    linha = ("p"+numeropedidovariavel +';'+str(cpflimpo)+';'+ nome +';' + data + ';' + "R$" + str(total) +  "\n")
+    linha = ("p"+numeropedidovariavel +';'+str(cpflimpo)+';'+ nome +';' + data + ';'+str(tsub)+ ';' +str(tdesc)+ ';' +str(ttotal) +  "\n")
 
 
 
@@ -344,7 +436,7 @@ def novopedido(nome,cpflimpo):
 
 
     # chamar pdf
-    gerarpdfdetalhado(nome, numeropedidovariavel, lista, total, data)
+    gerarpdfdetalhado(nome, numeropedidovariavel, lista,tsub, tdesc,total, data)
 
 
 
@@ -359,7 +451,7 @@ def novopedido(nome,cpflimpo):
     # SUBSTITUIR UM SPAÇO | POR NUMERO DO PEDIDO
     # remover os caracteres da string
     remover = "1 "
-    listavariavel = listavariavel.replace(remover, 'p'+str(numeropedidovariavel) + '|' + str(cpf) + '|1')
+    listavariavel = listavariavel.replace(remover, 'p'+str(numeropedidovariavel) + '|' + str(cpf) + str(QTDO))
 
     # | POR ESPAÇO E SIRGULA POR ESPAÇO
     remover = ","
@@ -798,14 +890,22 @@ def meudiretorio(caminho):
     return dirTemp
 
 # gerar um pdf detalhado do pedido para inprimir e dar para o cliente retira no balcao o seu pedido
-def gerarpdfdetalhado(nome, pedido, lista, valortotal, hora):
+def gerarpdfdetalhado(nome, pedido, lista,tsub, tdesc,valortotal, hora):
     from reportlab.pdfgen import canvas
 
     # organizar texto
     pedidoPDF = 'PEDIDO: ' + str(pedido)
     nomePDF = 'NOME: ' + str(nome)
-    valortotalPDF = 'TOTAL: ' + str(valortotal)
-    horaPDF = 'DATA: ' + str(hora)
+
+
+    sub = 'SUBTOTAL: ' + "%.2f" % float(tsub)
+    desc = 'DESCONTO: ' + "%.2f" % float(tdesc)
+    valortotalPDF = 'TOTAL: ' +"%.2f" % float(valortotal)
+
+
+
+
+    horaPDF = str(hora)
     listaPDF = 'DESCRIÇÃO: ' + str(lista)
 
     diretorio=meudiretorio(1)
@@ -813,10 +913,12 @@ def gerarpdfdetalhado(nome, pedido, lista, valortotal, hora):
 
     # escrever no pdf
     c = canvas.Canvas(diretorio+str(pedido) + '_' + nome + '_' + str(valortotal) + '.pdf')
-    c.drawString(60, 700, str(pedidoPDF))
-    c.drawString(60, 680, str(nomePDF))
-    c.drawString(60, 660, str(valortotalPDF))
-    c.drawString(60, 640, str(horaPDF))
+    c.drawString(440, 800, str(pedidoPDF))
+    c.drawString(30, 800, str(nomePDF))
+    c.drawString(80, 780, str(sub))
+    c.drawString(200, 780, str(desc))
+    c.drawString(320, 780, str(valortotalPDF))
+    c.drawString(330, 800, str(horaPDF))
 
 
     tam = 580
