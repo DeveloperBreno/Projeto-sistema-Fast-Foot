@@ -1,6 +1,6 @@
 nome = 'nome'
 numero = '+55 11 94463-4178'
-pedido =' Olá, nome seu pedido é P123456 \n total de R$ 12,90  \n 1 chocolate  \n 1 misto'
+pedido =' Olá, nome seu pedido é P123456 \n total de R$ 12,90  \n 1 chocolate  \n 1 misto \n Volte sempre \n '
 
 import time
 from selenium import webdriver
