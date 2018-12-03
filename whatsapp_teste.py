@@ -8,9 +8,7 @@ from selenium import webdriver
 driver = webdriver.Chrome()
 driver.get('https://web.whatsapp.com/')
 
-
-
-time.sleep(7)
+time.sleep(3)
 pesquisar = driver.find_element_by_xpath('//*[@id="side"]/div[1]/div/label/input')
 pesquisar.click()
 pesquisar.send_keys(numero)

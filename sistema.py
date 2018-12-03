@@ -1,15 +1,22 @@
 # chamar pedido
 import time
 
+
+
 # ganhar desconto
+from selenium.webdriver.common.alert import Alert
+
+
 def ganhardesconto(d):
     limpar()
     nomeupper = ''
     escrever('GANHAR DESCONTO [1]SIM [2]NÃO')
     desconto = int(input(''))
     cpflimpo = ' '
+    ddd = 1
+    tel = 1
     if desconto == 2:
-        return novopedido(nomeupper, cpflimpo)
+        return novopedido(nomeupper, cpflimpo, ddd, tel)
 
     if desconto == 1:
         limpar()
@@ -58,7 +65,7 @@ def ganhardesconto(d):
         # fechar
         arquivo.close()
 
-        novopedido(nomeupper,cpflimpo)
+        novopedido(nomeupper,cpflimpo, ddd, tel)
 
     if desconto == 2:
         limpar()
@@ -128,7 +135,7 @@ def limpar():
     return print("\n" * 100)
 
 # novo pedido
-def novopedido(nome,cpflimpo):
+def novopedido(nome,cpflimpo, ddd, tel):
     limpar()
 
     # mais um comvalor 1 para fazer o primeiro pedido
@@ -192,7 +199,7 @@ def novopedido(nome,cpflimpo):
 
         #escrever("SABORES:  \n  [1] CHOCOLATE \n  [2] MISTO \n  [3] CREME\n  [4] triplo chocolate Kopenhagen\n  [5] Kit Kat")
 
-        # quantidade de sorvetes reverente ao sabor
+        # quantidade de sorvetes reverente ao sabo
         QTDO = 1
         escrever("QUANTIDADE: ")
         QTDO = (int(input("")))
@@ -404,6 +411,8 @@ def novopedido(nome,cpflimpo):
     if len(cpflimpo) < 3:
         cpflimpo = 'SEM CPF'
 
+
+
     pedidoitem = ''
 
 
@@ -435,8 +444,10 @@ def novopedido(nome,cpflimpo):
     arquivo.close()
 
 
+
     # chamar pdf
-    gerarpdfdetalhado(nome, numeropedidovariavel, lista,tsub, tdesc,total, data)
+    gerarpdfdetalhado(nome, numeropedidovariavel, lista,tsub, tdesc,total, data, ddd, tel)
+
 
 
 
@@ -450,8 +461,16 @@ def novopedido(nome,cpflimpo):
     
     # SUBSTITUIR UM SPAÇO | POR NUMERO DO PEDIDO
     # remover os caracteres da string
-    remover = "1 "
-    listavariavel = listavariavel.replace(remover, 'p'+str(numeropedidovariavel) + '|' + str(cpf) + str(QTDO))
+
+
+
+    remover = "123456789"
+    for i in range(0, len(remover)):
+        for x in range(0, 10, 1):
+            strremove = str(i)+(' ')
+            listavariavel = listavariavel.replace(strremove,'p' + str(numeropedidovariavel) + '|' + str(cpf) +'|' +str(QTDO))
+            strremove = str(i)+str(x)+' '
+            listavariavel = listavariavel.replace(strremove,'p'+str(numeropedidovariavel) + '|' + str(cpf) +'|'+ str(QTDO))
 
     # | POR ESPAÇO E SIRGULA POR ESPAÇO
     remover = ","
@@ -476,14 +495,12 @@ def novopedido(nome,cpflimpo):
     listavariavel = '\n'+listavariavel
 
     # remover os caracteres da string
-    remover = "|"
-    listavariavel = listavariavel.replace(remover,";")
+    remover = "|p"
+    listavariavel = listavariavel.replace(remover, "p")
 
     # remover os caracteres da string
-    remover = "."
-    listavariavel = listavariavel.replace(remover,",")
-
-
+    remover = "|"
+    listavariavel = listavariavel.replace(remover,";")
 
 
     # abrir ou criar arquivo
@@ -494,6 +511,13 @@ def novopedido(nome,cpflimpo):
 
     # fechar
     arquivo.close()
+
+
+
+
+
+
+
 
 
 
@@ -549,6 +573,7 @@ def venda_por_produto(n):
 
 
     # excluir dic P e DIC ''
+    dic['P'] = 1
     del dic['P']
     del dic['']
 
@@ -695,7 +720,7 @@ def menu():
 # tela produto
 def produto(p):
     limpar()
-    escrever('TELA PRODUTOS')
+
     escrever("CADASTRAR PRODUTO [1]")
     escrever("EXCLUIR PRODUTO   [2]")
     escrever("VOLTAR            [3]")
@@ -840,12 +865,6 @@ def addproduto(produto):
                 linhadoproduto = linhadoproduto.replace(b[i], "")
 
 
-
-
-
-
-
-
             return linhadoproduto,
 
         cont = cont + 1
@@ -855,9 +874,13 @@ def addproduto(produto):
 # excluir produto do txt
 def excluirproduto(p):
     exibirprodutos(1)
-    escrever('NUMERO DO PRODUTO: : ')
-    index_linha = int(input(''))
-    index_linha = index_linha - 1
+    escrever('NUMERO DO PRODUTO ou VOLTAR [0]')
+
+    index_linha = str(input(''))
+    if index_linha == '0':
+        menu()
+
+    index_linha = int(index_linha)- 1
     path = 'produtos.txt'
 
     with open(path,'r', encoding="utf8") as f:
@@ -890,7 +913,37 @@ def meudiretorio(caminho):
     return dirTemp
 
 # gerar um pdf detalhado do pedido para inprimir e dar para o cliente retira no balcao o seu pedido
-def gerarpdfdetalhado(nome, pedido, lista,tsub, tdesc,valortotal, hora):
+def gerarpdfdetalhado(nome, pedido, lista,tsub, tdesc,valortotal, hora, ddd, tel):
+
+    # enviar via whatsapp
+    limpar()
+    escrever('envar por whatsapp: sim [1] | não [2]')
+    opwhats = int(input(''))
+
+
+    if opwhats == 1:
+
+        if len(str(tel))<3:
+            tel = ''
+            escrever('telefone:')
+            tel = str(input(''))
+
+        enviarporwhatsapp(nome, pedido, lista, tsub, tdesc, valortotal, hora, ddd, tel)
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
     from reportlab.pdfgen import canvas
 
     # organizar texto
@@ -912,7 +965,7 @@ def gerarpdfdetalhado(nome, pedido, lista,tsub, tdesc,valortotal, hora):
 
 
     # escrever no pdf
-    c = canvas.Canvas(diretorio+str(pedido) + '_' + nome + '_' + str(valortotal) + '.pdf')
+    c = canvas.Canvas(diretorio+str(pedido) + '_' + nome + '_' + "%.2f" % float(valortotal) + '.pdf')
     c.drawString(440, 800, str(pedidoPDF))
     c.drawString(30, 800, str(nomePDF))
     c.drawString(80, 780, str(sub))
@@ -929,8 +982,6 @@ def gerarpdfdetalhado(nome, pedido, lista,tsub, tdesc,valortotal, hora):
         minhalinha = ''
         add.split(';')
 
-
-
         for um in add:
             minhalinha = minhalinha + str(um)
 
@@ -939,13 +990,10 @@ def gerarpdfdetalhado(nome, pedido, lista,tsub, tdesc,valortotal, hora):
         for i in range(0, len(remover)):
             minhalinha = minhalinha.replace(remover, "")
 
-
         # remover os caracteres da string
         remover = "\'\"][,)( "
         for i in range(0, len(remover)):
             minhalinha = minhalinha.replace(remover[i], "")
-
-
 
         # remover os caracteres da string
         remover = "|"
@@ -957,8 +1005,6 @@ def gerarpdfdetalhado(nome, pedido, lista,tsub, tdesc,valortotal, hora):
         for i in range(0, len(remover)):
             minhalinha = minhalinha.replace(remover[i], ",")
 
-
-
         c.drawString(70, tam, str(minhalinha))
         tam = tam - 20
 
@@ -967,6 +1013,58 @@ def gerarpdfdetalhado(nome, pedido, lista,tsub, tdesc,valortotal, hora):
 
     # salvar no pdf
     c.save()
+
+
+
+
+
+def enviarporwhatsapp(nome, pedido, lista, tsub, tdesc, valortotal, hora, ddd, tel):
+
+    tel = '987088707'
+    ddd = '11'
+    numero ='550'+str(ddd)+str(tel)
+    print(numero)
+    driver.get("https://api.whatsapp.com/send?1=pt_BR&phone="+str('55011987088707'))
+    time.sleep(5)
+    try:
+        driver.switch_to_alert().accept()
+        alert = driver.switch_to.alert()
+        alert.accept()
+    except Exception as e:
+        pass
+
+    time.sleep(3)
+    btn = driver.find_element_by_xpath('//*[@id="action-button"]')
+    btn.click()
+    time.sleep(5)
+
+    escrever = driver.find_element_by_xpath('//*[@id="main"]/footer/div[1]/div[2]/div/div[2]')
+    escrever.click()
+    escrever.send_keys('teste')
+
+
+
+
+
+
+
+
+limpar()
+escrever('whatsapp: sim [1] | não [2]')
+whatsapp = int(input(''))
+
+
+if whatsapp == 1:
+    limpar()
+
+    from selenium import webdriver
+
+
+    from selenium.webdriver.common.keys import Keys
+    driver = webdriver.Chrome()
+    driver.get('https://web.whatsapp.com/')
+
+
 
 # não deixar o programa fechar
 continua = True
